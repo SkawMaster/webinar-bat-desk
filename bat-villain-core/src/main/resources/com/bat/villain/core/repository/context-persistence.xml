@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	        http://www.springframework.org/schema/context
+	        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	        http://www.springframework.org/schema/tx
+	        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+	        http://www.springframework.org/schema/jee
+	        http://www.springframework.org/schema/jee/spring-jee.xsd
+	        http://www.springframework.org/schema/task
+	        http://www.springframework.org/schema/task/spring-task.xsd
+	        http://www.springframework.org/schema/mvc 
+			http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+	
+		<!-- Configure properties files -->
+	<context:property-placeholder location="classpath*:deathray/deathrayweb.properties" ignore-unresolvable="true" order="1"/>
+		
+	
+	<!-- Configures the annotation-driven Spring MVC Controller -->
+	<mvc:annotation-driven /> 
+
+	<!-- Configure datasource -->
+	<jee:jndi-lookup id="batDeskDataSource" jndi-name="${villain.dataSource.jndi.name}" />
+	
+	<!-- Configure database -->
+	<bean id="batDeskTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="batDeskDataSource" />
+	</bean>
+
+	<bean id="batDeskSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" >
+		<property name="mapperLocations" value="classpath*:com/bat/*/repository/*.xml" />
+		<property name="dataSource" ref="batDeskDataSource" />
+	</bean>
+	
+
+	<bean id="batDeskScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.bat" />
+		<property name="sqlSessionFactoryBeanName" value="batDeskSqlSessionFactory" />
+	</bean>
+
+	<beans profile="development">
+
+		<bean id="batDeskDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="${villain.dataSource.driverClassName}" />
+			<property name="url" value="${villain.dataSource.url}" />
+			<property name="username" value="${villain.dataSource.username}" />
+			<property name="password" value="${villain.dataSource.password}" />
+		</bean>
+	
+		<bean id="batDeskLiquibase" class="liquibase.integration.spring.SpringLiquibase">
+			<property name="dataSource" ref="villainDataSource" />
+			<property name="defaultSchema" value="${villain.schemaName}" />
+			<property name="changeLog" value="classpath:/liquiBase/villainChangeLogs.xml" />
+			<property name="dropFirst" value="true" />
+		</bean>
+	</beans>
+		
+</beans>

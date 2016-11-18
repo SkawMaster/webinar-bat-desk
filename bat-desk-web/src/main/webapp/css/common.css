@@ -1,0 +1,94 @@
+@font-face {
+    font-family: batman;
+    src: url(../fonts/batman.ttf);    
+}
+
+@font-face {
+    font-family: sansation;
+    src: url(../fonts/sansation.ttf);
+}
+
+.logo {
+    font-family: batman;
+}
+
+.texts {
+    font-family: sansation;   
+}
+
+body {
+    font-family: sansation;  
+}
+
+.titleHeader{
+	color: #d5d500;
+}
+
+.navigation {
+	color: black;
+    background-color: #ececec;
+    border-color: #dddcdd;
+}
+
+thead{
+	font-weight: bold;
+}
+
+.formFieldError { 
+	background-color: #FFC; 
+}
+
+.statusIcon { 
+	width:40px;
+	height:40px;
+}
+
+.imgCenter{
+    display: block;
+    margin-left: auto;
+    margin-right: auto; 
+}
+
+.logoFooter{
+	width:220px;
+}
+
+.underConstruction{
+	text-align: center;
+}
+
+.logoUnderConstruction{
+	width:550px;
+	height:250px;
+}
+
+.logoHome{
+	width:300px;
+	height:250px;
+}
+
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #cff0c2;
+    border-color: #d6e9c6;
+}
+
+.alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}

@@ -1,0 +1,18 @@
+.classpath
+.project
+
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+/target/
+/Servers/
+/.settings/
+/.classpath/
+/.project/
+/.DS_Store/
+/.metadata/
+

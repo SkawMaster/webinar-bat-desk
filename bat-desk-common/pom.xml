@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+	  <groupId>com.bat.desk</groupId>
+	  <artifactId>bat-desk</artifactId>
+	  <version>0.0.1-SNAPSHOT</version>
+	</parent>
+	
+	<artifactId>bat-desk-common</artifactId>
+	<packaging>jar</packaging>
+	
+	<name>bat-desk-common</name>
+	<url>http://maven.apache.org</url>
+	
+  	<dependencies>
+	
+		<!-- *** Architecture Libraries *** -->
+	
+		<!-- bat-architecture-testing : custom test artifact --> 
+		
+		<dependency>
+			<groupId>com.bat.architecture.testing</groupId>
+			<artifactId>bat-architecture-testing</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- bat-architecture-common : custom commons artifact -->
+	 
+		<dependency>
+			<groupId>com.bat.architecture.common</groupId>
+			<artifactId>bat-architecture-common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<!-- *** Third Party Libraries *** -->
+		
+	</dependencies>
+
+	<build>
+		<finalName>bat-desk-common</finalName>
+		<plugins>
+
+			<!-- Plugin used to compile the project source -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			
+			<!-- Plugin used to handle the project resources  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+			</plugin>
+			
+			<!-- Plugin used to build lifecycle to execute unit test (test phase) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			
+		</plugins>
+	</build>
+  
+</project>

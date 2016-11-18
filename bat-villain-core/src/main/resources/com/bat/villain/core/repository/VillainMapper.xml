@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bat.villain.core.repository.VillainMapper">
+
+	<sql id="VillainColumnList">
+		id, name, description, status, creationDate, modificationDate
+	</sql>
+	
+	<resultMap id="VillainResultMap" type="com.bat.villain.core.entity.Villain">
+		<id column="id" property="id" jdbcType="NUMERIC"/>
+		<result column="name" property="name" jdbcType="VARCHAR"/>
+		<result column="description" property="description" jdbcType="VARCHAR"/>
+		<result column="status" property="status" jdbcType="VARCHAR"/>
+		<result column="creationDate" property="creationDate" jdbcType="TIMESTAMP" />
+		<result column="modificationDate" property="modificationDate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<select id="findAll" resultMap="VillainResultMap">
+		select 'false' as QUERYID,
+		<include refid="VillainColumnList"/>
+		from villain
+		order by id ASC
+	</select>
+	
+	<select id="findByPK" resultMap="VillainResultMap" parameterType="java.lang.Long">
+		select 'false' as QUERYID,
+		<include refid="VillainColumnList"/>
+		from villain
+  		where id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="com.bat.villain.core.entity.Villain">
+		
+		<selectKey keyProperty="id" resultType="java.lang.Long"
+			order="BEFORE">
+			SELECT MAX (ID) +1 as idVillain FROM (
+			SELECT MAX(id) AS ID
+			FROM villain
+			)
+		</selectKey>
+	
+        INSERT INTO villain (id, name, description, status, creationDate, modificationDate)
+        VALUES (#{id}, #{name}, #{description}, #{status}, sysdate, null);
+	</insert>
+	
+	<delete id="remove" parameterType="java.lang.Long">
+    	delete from villain
+  		where id = #{id}
+    </delete>
+    
+    <update id="update" parameterType="com.bat.villain.core.entity.Villain">
+        update villain
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="description != null">
+                description = #{description},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="creationDate != null">
+                creationDate = #{creationDate},
+            </if>
+            <if test="modificationDate != null">
+                modificationDate = sysdate
+            </if>
+        </set>
+       where id = #{id}
+    </update>
+	
+</mapper>

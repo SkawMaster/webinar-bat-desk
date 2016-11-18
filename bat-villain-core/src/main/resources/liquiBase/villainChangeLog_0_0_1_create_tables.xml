@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+	<changeSet author="batman" id="1" dbms="h2">	
+		<createTable tableName="villain">
+			<column name="id" type="NUMBER">
+				<constraints nullable="false" unique="true" primaryKey="true" primaryKeyName="villain_pk" />
+			</column>
+			<column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(50)" />
+			<column name="status" type="VARCHAR(15)" />	
+		</createTable>
+	</changeSet>
+	
+	<changeSet author="batman" id="2" dbms="h2">	
+		<addColumn tableName="villain">
+			<column name="creationDate" type="TIMESTAMP" />
+		</addColumn>
+	</changeSet>
+	
+	<changeSet author="villain" id="3" dbms="h2">	
+		<addColumn tableName="villain">
+			<column name="modificationDate" type="TIMESTAMP" />
+		</addColumn>
+	</changeSet>
+
+</databaseChangeLog>

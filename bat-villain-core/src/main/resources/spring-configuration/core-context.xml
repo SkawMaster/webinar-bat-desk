@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:jee="http://www.springframework.org/schema/jee"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	        http://www.springframework.org/schema/context
+	        http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	        http://www.springframework.org/schema/jee
+	        http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+	<!-- Configure properties files -->
+	<context:property-placeholder location="classpath*:properties/*.properties" ignore-unresolvable="true" order="1"/>
+	
+	<!--Configure datasource--> 
+	<jee:jndi-lookup id="villainDataSource" jndi-name="${villain.dataSource.jndi.name}" />
+	
+	<!-- Configure database -->
+	<bean id="villainTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="villainDataSource" />
+	</bean>
+
+	<!-- MyBatis configuration -->
+	<bean id="villainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="villainDataSource" />
+	</bean>
+	
+	<bean id="villainScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.bat.villain.core.repository" />
+		<property name="sqlSessionFactoryBeanName" value="villainSqlSessionFactory" />
+	</bean>
+
+	<!-- development profile -->
+	<beans profile="development">
+
+		<bean id="villainDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="${villain.dataSource.driverClassName}" />
+			<property name="url" value="${villain.dataSource.url}" />
+			<property name="username" value="${villain.dataSource.username}" />
+			<property name="password" value="${villain.dataSource.password}" />
+		</bean>
+	
+		<bean id="villainLiquibase" class="liquibase.integration.spring.SpringLiquibase">
+			<property name="dataSource" ref="villainDataSource" />
+			<property name="defaultSchema" value="${villain.schemaName}" />
+			<property name="changeLog" value="classpath:/liquiBase/villainChangeLogs.xml" />
+			<property name="dropFirst" value="true" />
+		</bean>
+	
+	</beans>
+	
+</beans>

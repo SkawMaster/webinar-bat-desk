@@ -1,0 +1,26 @@
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level %date [%thread] %logger{5} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.springframework" level="WARN" />
+    
+    <logger name="org.springframework.transaction" level="WARN" />
+
+    <logger name="org.springframework.web.servlet.mvc" level="WARN" />
+
+	<logger name="org.springframework.web.context.ContextLoaderListener" level="DEBUG" />
+	
+	<logger name="com.bat.desk.web.controller" level="TRACE" />
+	
+	<logger name="com.bat.villain.core.service" level="TRACE" />
+	
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+</configuration>
