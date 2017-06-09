@@ -16,3 +16,7 @@
 /.DS_Store/
 /.metadata/
 
+/.idea/
+/bat-villain-core/bat-villain-core.iml
+/bat-desk-web/bat-desk-web.iml
+/bat-desk.iml
