@@ -24,15 +24,15 @@ node {
 			
 		}			
 		
-		stage('release-to-master) {
+		stage('release-to-master') {
 		
 		}
 	}else {	
-		stage('deploy-nexus) {
+		stage('deploy-nexus') {
 			
 		}
 		
-		stage('deploy-production) {
+		stage('deploy-production') {
 		
 		}
 	}    	
