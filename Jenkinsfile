@@ -4,7 +4,7 @@ node {
 	stage('build-and-test') {
 		
 		withMaven() {
-			sh 'mvn clean install -Pall-test'
+			sh 'mvn clean install -Pall-tests'
 		}
 		
 	}
