@@ -2,11 +2,11 @@ node {
     def branchName = env.BRANCH_NAME	
    		
 	stage('build-and-test') {
-		steps {
-			withMaven() {
-				sh 'mvn clean install -Pall-test'
-			}
+		
+		withMaven() {
+			sh 'mvn clean install -Pall-test'
 		}
+		
 	}
 	
 	if(branchName != 'master') {
