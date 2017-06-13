@@ -20,9 +20,9 @@
         <phantomjs.path>E:\\software\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe</phantomjs.path>
         <skip.integration.tests>true</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
-        <nexus.releases.url>http://nexus:12000/repository/maven-releases/</nexus.releases.url>
-        <nexus.snapshots.url>http://nexus:12000/repository/maven-snapshots/</nexus.snapshots.url>
-        <sonar.host.url>http://sonarqube:13000</sonar.host.url>
+        <nexus.releases.url>http://nexus:8081/repository/maven-releases/</nexus.releases.url>
+        <nexus.snapshots.url>http://nexus:8081/repository/maven-snapshots/</nexus.snapshots.url>
+        <sonar.host.url>http://sonarqube:9000</sonar.host.url>
     </properties>
 
     <scm>
