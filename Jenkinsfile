@@ -1,5 +1,15 @@
 node {
     def branchName = env.BRANCH_NAME	
+	
+	stage('checkout') {
+		checkout([$class: 'GitSCM', 
+				 branches: [[name: "*/$branchName"]], 
+				 doGenerateSubmoduleConfigurations: false, 
+				 extensions: [], 
+				 submoduleCfg: [], 
+				 userRemoteConfigs: [[credentialsId: 'gitlab', url: 'http://gitlab/root/webinar-bat-desk.git']]
+				 ])
+	}
    		
 	stage('build-and-test') {
 		
