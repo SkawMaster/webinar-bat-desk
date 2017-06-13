@@ -25,6 +25,12 @@
         <sonar.host.url>http://sonarqube:10000</sonar.host.url>
     </properties>
 
+    <scm>
+        <url>https://github.com/atSistemas/webinar-bat-desk.git</url>
+        <connection>scm:git:git://github.com/atSistemas/webinar-bat-desk.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/atSistemas/webinar-bat-desk.git</developerConnection>
+    </scm>
+
     <distributionManagement>
         <repository>
             <id>nexus-releases</id>
