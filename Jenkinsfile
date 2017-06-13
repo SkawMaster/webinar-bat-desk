@@ -18,6 +18,14 @@ node {
 		}
 		
 	}
+
+	stage('sonar reports') {
+
+		withMaven() {
+			sh 'mvn clean verify -Psonar-coverage sonar:sonar'
+		}
+
+	}
 	
 	if(branchName != 'master') {
 	
