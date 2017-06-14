@@ -50,7 +50,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -101,7 +101,7 @@
 			<artifactId>selenium-java</artifactId>
 			<version>2.53.0</version>
 		</dependency>
-		
+
 		<!-- fluentlenium : fluent interface to selenium -->
 		<dependency>
 			<groupId>org.fluentlenium</groupId>
@@ -109,7 +109,7 @@
 			<version>0.13.0</version>
 		</dependency>
 
-		<!-- phantom :  headless WebKit scriptable with a JavaScript API -->
+		<!-- phantom : headless WebKit scriptable with a JavaScript API -->
 		<dependency>
 			<groupId>com.github.detro</groupId>
 			<artifactId>phantomjsdriver</artifactId>
@@ -120,6 +120,20 @@
 
 	<build>
 		<finalName>bat-desk-web</finalName>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<executions>
+						<execution>
+							<goals>
+								<goal>repackage</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+
 		<pluginManagement>
 			<plugins>
 
@@ -190,7 +204,8 @@
 				</configuration>
 			</plugin>
 
-			<!-- Plugin used to incluide Cobertura : free Java tool that calculates the percentage of code accessded by tests -->
+			<!-- Plugin used to incluide Cobertura : free Java tool that calculates 
+				the percentage of code accessded by tests -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
@@ -199,6 +214,8 @@
 
 		</plugins>
 	</reporting>
+
+
 
 </project>
 
