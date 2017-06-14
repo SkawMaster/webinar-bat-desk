@@ -16,6 +16,8 @@
 	<name>bat-desk-web</name>
 	<url>http://maven.apache.org</url>
 
+
+
 	<dependencies>
 
 		<!-- *** Architecture Libraries *** -->
@@ -120,19 +122,19 @@
 
 	<build>
 		<finalName>bat-desk-web</finalName>
-			<plugins>
-				<plugin>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-maven-plugin</artifactId>
-					<executions>
-						<execution>
-							<goals>
-								<goal>repackage</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-			</plugins>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 
 		<pluginManagement>
 			<plugins>
@@ -189,6 +191,7 @@
 			</plugins>
 
 		</pluginManagement>
+
 	</build>
 
 	<reporting>
