@@ -10,16 +10,16 @@
     
     <logger name="org.springframework.transaction" level="WARN" />
 
-    <logger name="org.springframework.web.servlet.mvc" level="WARN" />
+    <logger name="org.springframework.web.servlet.mvc" level="DEBUG" />
 
 	<logger name="org.springframework.web.context.ContextLoaderListener" level="DEBUG" />
 	
-	<logger name="com.bat.desk.web.controller" level="TRACE" />
+	<logger name="com.bat.desk.web.controller" level="DEBUG" />
 	
 	<logger name="com.bat.villain.core.service" level="TRACE" />
 	
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT" />
     </root>
 

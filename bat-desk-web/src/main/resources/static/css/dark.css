@@ -1,0 +1,12 @@
+body {
+    background-color: black;
+    color: white;
+}
+
+a {
+	color: #D006AB;
+}
+
+a :visited {
+	color: A8048A
+}

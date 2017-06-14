@@ -5,7 +5,7 @@ public final class WebConfigConstant {
 	private WebConfigConstant() {
 	}
 
-	public static final String VIEW_RESOLVER_PREFIX = "/WEB-INF/pages/";
+	public static final String VIEW_RESOLVER_PREFIX = "/WEB-INF/jsp/";
 	public static final String VIEW_RESOLVER_SUFFIX = ".jsp";
 	
 	public static final String ENCODING = "UTF-8";
