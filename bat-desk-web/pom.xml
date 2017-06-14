@@ -9,9 +9,12 @@
 		<artifactId>bat-desk</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+	
+	
 
 	<artifactId>bat-desk-web</artifactId>
-	<packaging>jar</packaging>
+<!-- 	<packaging>jar</packaging> -->
+	<packaging>war</packaging>
 
 	<name>bat-desk-web</name>
 	<url>http://maven.apache.org</url>
