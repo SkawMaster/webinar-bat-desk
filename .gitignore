@@ -20,3 +20,7 @@
 /*/*.iml
 /*.iml
 /*/target/
+
+bat-villain-core/\.settings/
+
+bat-desk-web/\.settings/
