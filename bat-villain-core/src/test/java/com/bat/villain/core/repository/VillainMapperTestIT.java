@@ -27,13 +27,11 @@ import com.bat.villain.core.factory.VillainDataFactory;
 //@Transactional(value = "villainTransactionManager")
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles("development")
-public class VillainMapperTest {
+public class VillainMapperTestIT {
 
-	private Integer NUM_ELEMENTS = 6; 
-	
 	@Resource
 	VillainMapper villainMapper;
-	
+	private Integer NUM_ELEMENTS = 6;
 	private Villain villainTest;
 
 	@Before

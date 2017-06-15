@@ -47,21 +47,23 @@
 
 	<profiles>
 		<profile>
-			<id>all-tests</id>
-			<properties>
-				<build.profile.id>all-tests</build.profile.id>
-				<skip.integration.tests>true</skip.integration.tests>
-				<skip.unit.tests>false</skip.unit.tests>
-			</properties>
-		</profile>
-		<profile>
 			<id>integration-tests</id>
 			<properties>
 				<build.profile.id>integration-test</build.profile.id>
+                <skip.unit.tests>true</skip.unit.tests>
 				<skip.integration.tests>false</skip.integration.tests>
-				<skip.unit.tests>true</skip.unit.tests>
-			</properties>
-		</profile>
+                <skip.e2e.tests>true</skip.e2e.tests>
+            </properties>
+        </profile>
+        <profile>
+            <id>e2e-tests</id>
+            <properties>
+                <build.profile.id>e2e-test</build.profile.id>
+                <skip.unit.tests>true</skip.unit.tests>
+                <skip.integration.tests>true</skip.integration.tests>
+                <skip.e2e.tests>false</skip.e2e.tests>
+            </properties>
+        </profile>
 
 		<profile>
 			<id>sonar-coverage</id>
@@ -167,10 +169,26 @@
 								<includes>
 									<include>**/*IT.class</include>
 								</includes>
-								<argLine>-Dphantomjs.binary.path=${phantomjs.path}</argLine>
+                                <excludes>
+                                    <exclude>**/*Selenium.class</exclude>
+                                </excludes>
 								<skipTests>${skip.integration.tests}</skipTests>
-							</configuration>
-						</execution>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>e2e-test</id>
+                            <phase>integration-test</phase>
+                            <goals>
+                                <goal>test</goal>
+                            </goals>
+                            <configuration>
+                                <includes>
+                                    <include>**/*Selenium.class</include>
+                                </includes>
+                                <argLine>-Dphantomjs.binary.path=${phantomjs.path}</argLine>
+                                <skipTests>${skip.e2e.tests}</skipTests>
+                            </configuration>
+                        </execution>
 					</executions>
 				</plugin>
 				<plugin>

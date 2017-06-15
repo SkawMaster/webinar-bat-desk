@@ -18,9 +18,9 @@ import org.springframework.web.servlet.theme.ThemeChangeInterceptor;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes={WebConfig.class})
-public class WebConfigTest {
-	
-	@Autowired
+public class WebConfigTestIT {
+
+    @Autowired
 	private ViewResolver viewResolver;
 	
 	@Autowired
