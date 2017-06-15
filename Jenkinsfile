@@ -11,10 +11,10 @@ node {
 				 ])
 	}
    		
-	stage('build-and-test') {
+	stage('unit-tests') {
 		
 		withMaven() {
-			sh 'mvn clean install -Pall-tests'
+			sh 'mvn clean test'
 		}
 		
 	}
@@ -26,7 +26,16 @@ node {
 		}
 
 	}
-	
+
+	stage('integration-tests') {
+
+		withMaven() {
+			sh 'mvn clean verify -Pintegration-tests'
+		}
+
+	}
+
+
 	if(branchName != 'master') {
 	
 		stage('deploy-integration-environment') {
@@ -34,10 +43,10 @@ node {
 		
 		}
 		
-		stage('integration-test') {
+		stage('e2e-test') {
 			
 			withMaven() {
-				//sh 'mvn clean install -Pintegration-tests'
+				sh 'mvn clean verify -P2e2-tests'
 			}
 			
 		}			

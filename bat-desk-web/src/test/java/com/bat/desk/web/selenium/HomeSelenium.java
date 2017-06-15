@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 @SpringApplicationConfiguration(classes = SpringBootWebApplication.class)
 @WebAppConfiguration
 @IntegrationTest("server.port:8080")
-public class HomeSeleniumIT extends FluentTest {
+public class HomeSelenium extends FluentTest {
 
     @Value("${local.server.port:8080}")
     private int serverPort;
