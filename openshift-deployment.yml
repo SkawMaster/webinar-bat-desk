@@ -1,0 +1,53 @@
+---
+kind: Template
+apiVersion: v1
+metadata:
+  name: deployment-app
+  annotations:
+    description: 'bat-desk project'
+    tags: app,java,ic,openshift,workshop-jbcn-2017,jenkins
+    iconClass: icon-java
+labels:
+  template: deployment-app-template
+objects:
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: deployment-bat-desk
+    spec:
+      strategy:
+        type: Rolling
+      replicas: 2
+      selector:
+        name: project-bat-desk
+      template:
+        metadata:
+          name: project-bat-desk
+          labels:
+            name: project-bat-desk
+        spec:
+          containers:
+          - name: app-bat-desk
+            image: crccheck/hello-world
+            imagePullPolicy: Always
+            ports:
+            - containerPort: 8000
+
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: svc-bat-desk
+    spec:
+      ports:
+      - name: web
+        port: 8080
+        targetPort: 8000
+        nodePort: ${PORT}
+      selector:
+        name: project-bat-desk
+      type: NodePort
+
+parameters:
+
+    - name: PORT
+      description: Port where app will be published
