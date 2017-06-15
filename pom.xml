@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.bat.desk</groupId>
@@ -18,7 +18,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<build.encoding>UTF-8</build.encoding>
-		<phantomjs.path>E:\\software\\phantomjs-2.1.1-windows\\bin\\phantomjs.exe</phantomjs.path>
+		<phantomjs.path>/opt/phantomjs-2.1.1-linux-x86_64/bin/phantomjs</phantomjs.path>
 		<skip.integration.tests>true</skip.integration.tests>
 		<skip.unit.tests>false</skip.unit.tests>
 		<nexus.releases.url>http://nexus:8081/repository/maven-releases/</nexus.releases.url>
