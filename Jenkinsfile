@@ -42,15 +42,15 @@ node {
 	
     stage('bake-docker-image-and-push-to-registry') {
 
-                docker.withRegistry('http://registry:14000', 'registryCreds') {
-
-                        def commit_id = readFile('.git/commit-id').trim()
-                        println commit_id
-
-                        def dockerImage = docker.build "atsistemas/bat-desk:${build_tag}"
-
-                        dockerImage.push()
-                    }
+        withMaven() {
+            sh 'env'
+            sh 'sudo docker login -u admin -p admin localhost:5000'
+            sh 'sudo docker build -t atsistemas/bat-desk/"${BRANCH_NAME}":"${BUILD_ID}" .'
+            sh 'sudo docker tag atsistemas/bat-desk/"${BRANCH_NAME}":"${BUILD_ID}" localhost:5000/atsistemas/bat-desk/"${BRANCH_NAME}":"${BUILD_ID}"'
+            sh 'sudo docker push localhost:5000/atsistemas/bat-desk/"${BRANCH_NAME}":"${BUILD_ID}"'
+            sh 'sudo docker rmi localhost:5000/atsistemas/bat-desk/"${BRANCH_NAME}":"${BUILD_ID}"'
+            sh 'sudo docker rmi atsistemas/bat-desk/"${BRANCH_NAME}":"${BUILD_ID}"'
+        }
 
     }
 
@@ -68,7 +68,7 @@ node {
     stage('e2e-test') {
 
         withMaven() {
-            sh 'mvn clean verify -P2e2-tests'
+            sh 'mvn clean verify -Pe2e-tests '
         }
     }
 
@@ -80,28 +80,30 @@ node {
 
 	if(isMergeRequest(branchName)) {
 
-			//read the version and sets.
-			withMaven() {
-				def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
+            stage('pepe') {
 
-				def finalVersion = getFinalVersion(output)
+                //read the version and sets.
+                withMaven() {
+                    def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
 
-				sh "mvn versions:set -DnewVersion=$finalVersion"
-			}
+                    def finalVersion = getFinalVersion(output)
 
-			//commit and push.
-			withCredentials([usernamePassword(credentialsId: 'gitlab', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-				sh 'git config --global user.email "atSistemas@atsistemas.com"'
-				sh 'git config --global user.name "atSistemas"'
-				sh 'git commit -am "Set final version"'
-				sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
-			}
+                    sh "mvn versions:set -DnewVersion=$finalVersion"
+                }
+
+                //commit and push.
+                withCredentials([usernamePassword(credentialsId: 'gitlab', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                    sh 'git config --global user.email "atSistemas@atsistemas.com"'
+                    sh 'git config --global user.name "atSistemas"'
+                    sh 'git commit -am "Set final version"'
+                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
+                }
+            }
+            stage('merge') {
+                acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
+            }
 	    }
-		
-	    stage('merge') {
-	        acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
-	    }
-	}
+
 
 	if(isMaster(branchName)) {
 		stage('deploy-production') {
@@ -138,4 +140,8 @@ boolean isMergeRequest(String branch) {
 
 int getMergeRequestId(String branch) {
     return branch.substring(branch.lastIndexOf("/") + 1)
+}
+
+String readCommitId(String commitOutput) {
+    return "dededede"
 }
