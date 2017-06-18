@@ -68,7 +68,10 @@ node {
     stage('e2e-test') {
 
         withMaven() {
-            sh 'mvn clean verify -Pe2e-tests '
+        //we need to modify this to point to openshift deployed url and port
+        //server.port
+        //application.endpoint.url
+            sh 'mvn clean verify -Pe2e-tests -Dserver.port=3000'
         }
     }
 
@@ -80,9 +83,9 @@ node {
 
 	if(isMergeRequest(branchName)) {
 
-            stage('pepe') {
+            stage('setting up pom release version') {
 
-                //read the version and sets.
+                //read the version and sets to release
                 withMaven() {
                     def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
 

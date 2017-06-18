@@ -22,7 +22,7 @@ public class DetainSelenium extends FluentTest {
 
     private final String NAVIGATION_VILLAIN_LIST = "navigation_villain_list";
 
-    @Value("${local.server.port:8080}")
+    @Value("${server.port:8080}")
     private int serverPort;
 
     @Value("${application.endpoint.url:http://localhost}")
