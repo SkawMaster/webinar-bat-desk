@@ -46,12 +46,13 @@ node {
 
             def featureName = getFeatureName(branchName)
             def commitId = readCommitId()
+
             sh "sudo docker login -u admin -p admin localhost:5000"
-            sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${BUILD_ID} ."
-            sh "sudo docker tag atsistemas/bat-desk/${featureName}:${BUILD_ID} localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
-            sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
-            sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
-            sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${BUILD_ID}"
+            sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${commitId} ."
+            sh "sudo docker tag atsistemas/bat-desk/${featureName}:${commitId} localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+            sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+            sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+            sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${commitId}"
         }
 
     }
@@ -162,9 +163,10 @@ int getMergeRequestId(String branch) {
     return branch.substring(branch.lastIndexOf("/") + 1)
 }
 String getFeatureName(String branch) {
-    return branch.substring(branch.lastIndexOf("/") + 1)
+
+    return branch.toLowerCase().substring(branch.lastIndexOf("/") + 1)
 }
 
 String readCommitId() {
-    return sh(returnStdout: true, script: 'git rev-parse --short HEAD')
+    return sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
 }
