@@ -1,11 +1,11 @@
 node {
     def branchName = env.BRANCH_NAME
 	
-	stage('Clean workspace') {
+	stage('Clean Workspace') {
 		cleanWs()
 	}
 
-	stage('checkout') {
+	stage('Checkout the Code') {
 	    echo "Checkout the branch: $branchName"
 
 		checkout([$class: 'GitSCM',
@@ -19,44 +19,45 @@ node {
 				 ])
 	}
    		
-	stage('unit-tests') {
+	stage('Run Unit Tests') {
 		
 		withMaven() {
 			sh 'mvn clean test'
 		}
 	}
 
-	stage('sonar reports') {
+	stage('Run Sonar reports') {
 
         withMaven() {
             sh 'mvn clean verify -Psonar-coverage sonar:sonar'
         }
     }
 
-	stage('integration-tests') {
+	stage('Run Integration Tests') {
 
         withMaven() {
             sh 'mvn clean verify -Pintegration-tests'
         }
     }
 	
-    stage('bake-docker-image-and-push-to-registry') {
+    stage('Create Docker Image and Push to Registry') {
 
         withMaven() {
 
             def featureName = getFeatureName(branchName)
             def commitId = readCommitId()
+
             sh "sudo docker login -u admin -p admin localhost:5000"
-            sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${BUILD_ID} ."
-            sh "sudo docker tag atsistemas/bat-desk/${featureName}:${BUILD_ID} localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
-            sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
-            sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
-            sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${BUILD_ID}"
+            sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${commitId} ."
+            sh "sudo docker tag atsistemas/bat-desk/${featureName}:${commitId} localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+            sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+            sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+            sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${commitId}"
         }
 
     }
 
-    stage('deploy-integration-environment') {
+    stage('Deploy to Integration Environment') {
         sh '''
           export PROJECT=workshopjbcn2017-integration
           export PORT=30001
@@ -67,7 +68,7 @@ node {
           '''
     }
 
-    stage('e2e-test') {
+    stage('Run 2e2 Tests') {
 
         withMaven() {
         //we need to modify this to point to openshift deployed url and port
@@ -79,14 +80,13 @@ node {
 
 	if(isMergeRequest(branchName)) {
 
-            stage('setting up pom release version') {
+            stage('Preparing Pom for Release') {
 
                 //read the version and sets to release
                 withMaven() {
                     def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
 
-                    def finalVersion = getFinalVersion(output)
-                    echo finalVersion
+                    def finalVersion finalVersion = getFinalVersion(output)
 
                     sh "mvn versions:set -DnewVersion=$finalVersion"
                 }
@@ -99,13 +99,13 @@ node {
                     sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
                 }
             }
-            stage('merge') {
+            stage('Merge to where???') {
                 acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
             }
 
             if(isMaster(branchName)) {
 
-                stage('deploy-release-nexus') {
+                stage('Deploy Release to Nexus') {
                     withMaven() {
                         sh 'mvn clean deploy -Dmaven.test.skip=true'
                     }
@@ -113,7 +113,7 @@ node {
             }
 
     } else {
-        stage('deploy-nexus') {
+        stage('Deploy Snapshot to Nexus') {
         		withMaven() {
         			sh 'mvn clean deploy -Dmaven.test.skip=true'
         		}
@@ -122,7 +122,7 @@ node {
 
 
 	if(isMaster(branchName)) {
-		stage('deploy-production') {
+		stage('Deploy Application to Production') {
 			sh '''
 			  export PROJECT=workshopjbcn2017-production
 			  export PORT=30000
@@ -162,9 +162,10 @@ int getMergeRequestId(String branch) {
     return branch.substring(branch.lastIndexOf("/") + 1)
 }
 String getFeatureName(String branch) {
-    return branch.substring(branch.lastIndexOf("/") + 1)
+
+    return branch.toLowerCase().substring(branch.lastIndexOf("/") + 1)
 }
 
 String readCommitId() {
-    return sh(returnStdout: true, script: 'git rev-parse --short HEAD')
+    return sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
 }
