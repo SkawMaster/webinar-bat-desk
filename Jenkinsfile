@@ -46,7 +46,7 @@ node {
 
         withMaven() {
 
-            def featureName = getFeatureName(branchName)
+            featureName = getFeatureName(branchName)
             def commitId = readCommitId()
 
             sh "sudo docker login -u admin -p admin localhost:5000"
@@ -103,7 +103,7 @@ node {
                 withMaven() {
                     def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
 
-                    def finalVersion finalVersion = getFinalVersion(output)
+                    def finalVersion = getFinalVersion(output)
 
                     sh "mvn versions:set -DnewVersion=$finalVersion"
                 }
