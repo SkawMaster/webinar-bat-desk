@@ -45,7 +45,7 @@ node {
         withMaven() {
 
             def featureName = getFeatureName(branchName)
-
+            def commitId = readCommitId()
             sh "sudo docker login -u admin -p admin localhost:5000"
             sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${BUILD_ID} ."
             sh "sudo docker tag atsistemas/bat-desk/${featureName}:${BUILD_ID} localhost:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}"
@@ -77,12 +77,6 @@ node {
         }
     }
 
-	stage('deploy-nexus') {
-		withMaven() {
-			sh 'mvn clean deploy -Dmaven.test.skip=true'
-		}
-	}
-
 	if(isMergeRequest(branchName)) {
 
             stage('setting up pom release version') {
@@ -92,6 +86,7 @@ node {
                     def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
 
                     def finalVersion = getFinalVersion(output)
+                    echo finalVersion
 
                     sh "mvn versions:set -DnewVersion=$finalVersion"
                 }
@@ -107,7 +102,23 @@ node {
             stage('merge') {
                 acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
             }
-	    }
+
+            if(isMaster(branchName)) {
+
+                stage('deploy-release-nexus') {
+                    withMaven() {
+                        sh 'mvn clean deploy -Dmaven.test.skip=true'
+                    }
+                }
+            }
+
+    } else {
+        stage('deploy-nexus') {
+        		withMaven() {
+        			sh 'mvn clean deploy -Dmaven.test.skip=true'
+        		}
+        	}
+    }
 
 
 	if(isMaster(branchName)) {
@@ -126,13 +137,17 @@ node {
 
 @NonCPS
 String getFinalVersion(String output) {
-	output.eachLine {
-		def m = it =~ /(\\d+\\.\\d+.\\d+)-SNAPSHOT/
+    String version
 
-		if(m.find()) {
-			return "${m[0][1]}"
-		}
-	}
+    output.eachLine { line ->
+        def m = line =~ /(\d+\.\d+\.\d+)-SNAPSHOT/
+
+        if(m.find()) {
+            version = "${m[0][1]}"
+        }
+    }
+
+    return version
 }
 
 boolean isMaster(String branch) {
@@ -150,6 +165,6 @@ String getFeatureName(String branch) {
     return branch.substring(branch.lastIndexOf("/") + 1)
 }
 
-String readCommitId(String commitOutput) {
-    return "dededede"
+String readCommitId() {
+    return sh(returnStdout: true, script: 'git rev-parse --short HEAD')
 }
