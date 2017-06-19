@@ -1,6 +1,8 @@
 node {
     def branchName = env.BRANCH_NAME
-	
+    def featureName
+    def urlService
+
 	stage('Clean Workspace') {
 		cleanWs()
 	}
@@ -9,18 +11,18 @@ node {
 	    echo "Checkout the branch: $branchName"
 
 		checkout([$class: 'GitSCM',
-				 branches: [[name: "*/$branchName"]], 
-				 doGenerateSubmoduleConfigurations: false, 
-				 extensions: [], 
-				 submoduleCfg: [], 
+				 branches: [[name: "*/$branchName"]],
+				 doGenerateSubmoduleConfigurations: false,
+				 extensions: [],
+				 submoduleCfg: [],
 				 userRemoteConfigs: [[credentialsId: 'gitlab',
 				                      refspec: '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
 				                      url: 'http://gitlab/root/webinar-bat-desk.git']]
 				 ])
 	}
-   		
+
 	stage('Run Unit Tests') {
-		
+
 		withMaven() {
 			sh 'mvn clean test'
 		}
@@ -39,7 +41,7 @@ node {
             sh 'mvn clean verify -Pintegration-tests'
         }
     }
-	
+
     stage('Create Docker Image and Push to Registry') {
 
         withMaven() {
@@ -58,15 +60,23 @@ node {
     }
 
     stage('Deploy to Integration Environment') {
-        sh '''
-          export PROJECT=workshopjbcn2017-integration
-          export PORT=30001
-          oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
-          oc project $PROJECT --config ./config || oc new-project $PROJECT --config ./config
-          oc apply -f openshift-deployment.yml --config ./config
-          oc process deployment-app --config ./config -p PORT=$PORT | oc apply --config ./config -f -
-          '''
-    }
+        sh """
+            export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
+            export IMAGE=registry:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}
+            echo "\$IMAGE"
+            oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
+            oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
+            oc apply -f openshift-deployment.yml --config ./config
+            oc process deployment-app --config ./config -p=PORT=0 -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
+            """
+        environment_port = sh (
+            script: 'oc get service/svc-bat-desk  --config ./config --output=\'jsonpath={.spec.ports[0].nodePort}\'',
+            returnStdout: true
+        ).trim()
+
+        urlService = "http://openshift:${environment_port}"
+        echo "URL Servicio    : ${urlService}"
+      }
 
     stage('Run 2e2 Tests') {
 
@@ -76,6 +86,13 @@ node {
         //application.endpoint.url
             sh 'mvn clean verify -Pe2e-tests -Dserver.port=3000'
         }
+    }
+
+    stage('Remove Integration Environment') {
+        sh """
+            export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
+            oc delete project \$PROJECT --config ./config
+            """
     }
 
 	if(isMergeRequest(branchName)) {
@@ -123,14 +140,15 @@ node {
 
 	if(isMaster(branchName)) {
 		stage('Deploy Application to Production') {
-			sh '''
+      sh """
 			  export PROJECT=workshopjbcn2017-production
 			  export PORT=30000
-			  oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
-			  oc project $PROJECT --config ./config || oc new-project $PROJECT --config ./config
-			  oc apply -f openshift-deployment.yml --config ./config
-			  oc process deployment-app --config ./config -p PORT=$PORT | oc apply --config ./config -f -
-			  '''
+        export IMAGE=registry:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}
+        oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
+        oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
+        oc apply -f openshift-deployment.yml --config ./config
+        oc process deployment-app --config ./config -p=PORT=\$PORT -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
+			  """
 		}
 	}
 }

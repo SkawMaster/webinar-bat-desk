@@ -17,7 +17,7 @@ objects:
     spec:
       strategy:
         type: Rolling
-      replicas: 2
+      replicas: 1
       selector:
         name: project-bat-desk
       template:
@@ -28,10 +28,10 @@ objects:
         spec:
           containers:
           - name: app-bat-desk
-            image: crccheck/hello-world
+            image: '${IMAGE}'
             imagePullPolicy: Always
             ports:
-            - containerPort: 8000
+            - containerPort: 8080
 
   - kind: Service
     apiVersion: v1
@@ -41,7 +41,7 @@ objects:
       ports:
       - name: web
         port: 8080
-        targetPort: 8000
+        targetPort: 8080
         nodePort: ${PORT}
       selector:
         name: project-bat-desk
@@ -51,3 +51,5 @@ parameters:
 
     - name: PORT
       description: Port where app will be published
+    - name: IMAGE
+      description: Docker image (with registry server url)
