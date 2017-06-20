@@ -127,7 +127,7 @@ node {
                     sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
                 }
             }
-            stage('Merge to where???') {
+            stage('Merge') {
                 acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
             }
 
