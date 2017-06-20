@@ -2,13 +2,14 @@ node {
     def branchName = env.BRANCH_NAME
     def featureName
     def urlService
-	
-	if(isMergeRequest(branchName)) {	
+    def commitId
+
+	if(isMergeRequest(branchName)) {
 		def state = getmergerequeststate('webinar-bat-desk', getMergeRequestId(branchName))
-		
+
 		if(!state.equals('opened')) {
 			echo "The merge request[$branchName] must be opened to build."
-			
+
 			return
 		}
 	}
@@ -57,7 +58,7 @@ node {
         withMaven() {
 
             featureName = getFeatureName(branchName)
-            def commitId = readCommitId()
+            commitId = readCommitId()
 
             sh "sudo docker login -u admin -p admin localhost:5000"
             sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${commitId} ."
@@ -72,7 +73,7 @@ node {
     stage('Deploy to Integration Environment') {
         sh """
             export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
-            export IMAGE=registry:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}
+            export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
             echo "\$IMAGE"
             oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
             oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
@@ -88,13 +89,13 @@ node {
         echo "URL Servicio    : ${urlService}"
       }
 
-    stage('Run 2e2 Tests') {
+    stage('Run e2e Tests') {
 
         withMaven() {
         //we need to modify this to point to openshift deployed url and port
         //server.port
         //application.endpoint.url
-            sh 'mvn clean verify -Pe2e-tests -Dserver.port=3000'
+            sh "mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}"
         }
     }
 
@@ -151,9 +152,9 @@ node {
 	if(isMaster(branchName)) {
 		stage('Deploy Application to Production') {
       sh """
-			  export PROJECT=workshopjbcn2017-production
-			  export PORT=30000
-        export IMAGE=registry:5000/atsistemas/bat-desk/${featureName}:${BUILD_ID}
+        export PROJECT=workshopjbcn2017-production
+        export PORT=30000
+        export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
         oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
         oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
         oc apply -f openshift-deployment.yml --config ./config
