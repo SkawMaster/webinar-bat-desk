@@ -30,12 +30,12 @@ node {
 		}
 	}
 
-	stage('Run Sonar reports') {
+  stage('Run Sonar reports') {
 
-        withMaven() {
-            sh 'mvn clean verify -Psonar-coverage sonar:sonar'
-        }
+    withMaven() {
+      sh 'mvn clean verify -Psonar-coverage sonar:sonar'
     }
+  }
 
 	stage('Run Integration Tests') {
 
@@ -76,7 +76,12 @@ node {
             returnStdout: true
         ).trim()
 
-        urlService = "http://openshift:${environment_port}"
+        pod = sh (
+          script: " ./wait-to-pod.sh ",
+          returnStdout: true
+          ).trim()
+
+        urlService = "http://localhost:${environment_port}"
         echo "URL Servicio    : ${urlService}"
       }
 
@@ -86,7 +91,10 @@ node {
         //we need to modify this to point to openshift deployed url and port
         //server.port
         //application.endpoint.url
-            sh "mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}"
+            sh """
+                nohup oc port-forward ${pod} ${environment_port}:8080 --config ./config >/dev/null 2>&1  &
+                mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=${urlService}
+               """
         }
     }
 
