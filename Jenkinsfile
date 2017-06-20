@@ -3,6 +3,7 @@ node {
     def featureName
     def urlService
     def commitId
+    def environment_port
 
 	if(isMergeRequest(branchName)) {
 		def state = getmergerequeststate('webinar-bat-desk', getMergeRequestId(branchName))
