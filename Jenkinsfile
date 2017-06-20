@@ -93,6 +93,7 @@ node {
         //application.endpoint.url
             sh """
                 nohup oc port-forward ${pod} ${environment_port}:8080 --config ./config >/dev/null 2>&1  &
+                echo \$! > port-forward.pid
                 mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}
                """
         }
@@ -102,7 +103,8 @@ node {
         sh """
             export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
             oc delete project \$PROJECT --config ./config
-            """
+            kill -9 \$(cat port-forward.pid)
+           """
     }
 
 	if(isMergeRequest(branchName)) {
