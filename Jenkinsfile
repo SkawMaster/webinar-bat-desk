@@ -3,6 +3,7 @@ node {
     def featureName
     def urlService
     def commitId
+    def environment_port
 
 	stage('Clean Workspace') {
 		cleanWs()
