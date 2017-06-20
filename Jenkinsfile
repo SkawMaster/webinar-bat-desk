@@ -132,21 +132,12 @@ node {
                 acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
             }
 
-            if(isMaster(branchName)) {
+    }
 
-                stage('Deploy Release to Nexus') {
-                    withMaven() {
-                        sh 'mvn clean deploy -Dmaven.test.skip=true'
-                    }
-                }
+    stage('Deploy to Nexus') {
+            withMaven() {
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
             }
-
-    } else {
-        stage('Deploy Snapshot to Nexus') {
-        		withMaven() {
-        			sh 'mvn clean deploy -Dmaven.test.skip=true'
-        		}
-        	}
     }
 
 
