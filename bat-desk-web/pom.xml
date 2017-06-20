@@ -137,6 +137,21 @@
 					</execution>
 				</executions>
 			</plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <configuration>
+                    <excludeProperties>
+                        <excludeProperty>git.commit.user.email</excludeProperty>
+                        <excludeProperty>git.commit.id.abbrev</excludeProperty>
+                        <excludeProperty>git.commit.message.short</excludeProperty>
+                        <excludeProperty>git.build.user.name</excludeProperty>
+                        <excludeProperty>git.build.user.email</excludeProperty>
+                        <excludeProperty>git.dirty</excludeProperty>
+                        <excludeProperty>git.remote.origin.url</excludeProperty>
+                    </excludeProperties>
+                </configuration>
+            </plugin>
 		</plugins>
 
 		<pluginManagement>
