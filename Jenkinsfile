@@ -93,7 +93,7 @@ node {
         //application.endpoint.url
             sh """
                 nohup oc port-forward ${pod} ${environment_port}:8080 --config ./config >/dev/null 2>&1  &
-                mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=${urlService}
+                mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}
                """
         }
     }
