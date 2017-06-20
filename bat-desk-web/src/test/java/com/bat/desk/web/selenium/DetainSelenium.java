@@ -16,8 +16,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SpringBootWebApplication.class)
-@WebAppConfiguration
-@IntegrationTest("server.port:8080")
 public class DetainSelenium extends FluentTest {
 
     private final String NAVIGATION_VILLAIN_LIST = "navigation_villain_list";
