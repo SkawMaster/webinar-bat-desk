@@ -2,6 +2,16 @@ node {
     def branchName = env.BRANCH_NAME
     def featureName
     def urlService
+	
+	if(isMergeRequest(branchName)) {	
+		def state = getmergerequeststate('webinar-bat-desk', getMergeRequestId(branchName))
+		
+		if(!state.equals('opened')) {
+			echo "The merge request[$branchName] must be opened to build."
+			
+			return
+		}
+	}
 
 	stage('Clean Workspace') {
 		cleanWs()
