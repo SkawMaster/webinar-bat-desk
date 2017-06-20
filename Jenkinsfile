@@ -3,17 +3,6 @@ node {
     def featureName
     def urlService
     def commitId
-    def environment_port
-
-	if(isMergeRequest(branchName)) {
-		def state = getmergerequeststate('webinar-bat-desk', getMergeRequestId(branchName))
-
-		if(state == null || !state.equals('opened')) {
-			echo "The merge request[$branchName] must be opened to build."
-
-			return
-		}
-	}
 
 	stage('Clean Workspace') {
 		cleanWs()
@@ -125,19 +114,26 @@ node {
                     sh 'git config --global user.email "atSistemas@atsistemas.com"'
                     sh 'git config --global user.name "atSistemas"'
                     sh 'git commit -am "Set final version"'
-                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName 'refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*'"
+                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
                 }
             }
             stage('Merge') {
                 acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
             }
 
-    }
+            if(isMaster(branchName)) {
 
     stage('Deploy to Nexus') {
             withMaven() {
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
             }
+
+    } else {
+        stage('Deploy Snapshot to Nexus') {
+        		withMaven() {
+        			sh 'mvn clean deploy -Dmaven.test.skip=true'
+        		}
+        	}
     }
 
 
