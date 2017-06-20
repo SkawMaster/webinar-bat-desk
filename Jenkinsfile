@@ -1,24 +1,35 @@
 node {
-    def branchName = env.BRANCH_NAME
+
+    def _cycle
+
+       try {
+          _cycle = "$cycle"
+        }catch(Exception e) {
+          _cycle = ''
+        }
+
+    def branch_Name = (_cycle == 'EndFeature')? branchName : env.BRANCH_NAME
+
     def featureName
     def urlService
     def commitId
     def environment_port
+    def finalVersion
 
 	stage('Clean Workspace') {
 		cleanWs()
 	}
 
 	stage('Checkout the Code') {
-	    echo "Checkout the branch: $branchName"
+	    echo "Checkout the branch: $branch_Name"
 
 		checkout([$class: 'GitSCM',
-				 branches: [[name: "*/$branchName"]],
+				 branches: [[name: "*/$branch_Name"]],
 				 doGenerateSubmoduleConfigurations: false,
 				 extensions: [],
 				 submoduleCfg: [],
 				 userRemoteConfigs: [[credentialsId: 'gitlab',
-				                      refspec: '+refs/heads/*:refs/remotes/origin/* +refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*',
+				                      refspec: '+refs/heads/*:refs/remotes/origin/*',
 				                      url: 'http://gitlab/root/webinar-bat-desk.git']]
 				 ])
 	}
@@ -30,137 +41,126 @@ node {
 		}
 	}
 
-  stage('Run Sonar reports') {
+	stage('Run Sonar reports') {
 
-    withMaven() {
-      sh 'mvn clean verify -Psonar-coverage sonar:sonar'
-    }
+      withMaven() {
+          sh 'mvn clean verify -Psonar-coverage sonar:sonar'
+      }
   }
 
 	stage('Run Integration Tests') {
 
-        withMaven() {
-            sh 'mvn clean verify -Pintegration-tests'
-        }
-    }
+      withMaven() {
+          sh 'mvn clean verify -Pintegration-tests'
+      }
+  }
 
-    stage('Create Docker Image and Push to Registry') {
+  stage('Create Docker Image and Push to Registry') {
 
-        withMaven() {
+      withMaven() {
 
-            featureName = getFeatureName(branchName)
-            commitId = readCommitId()
+          featureName = getFeatureName(branch_Name)
+          commitId = readCommitId()
 
-            sh "sudo docker login -u admin -p admin localhost:5000"
-            sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${commitId} ."
-            sh "sudo docker tag atsistemas/bat-desk/${featureName}:${commitId} localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
-            sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
-            sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
-            sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${commitId}"
-        }
-
-    }
-
-    stage('Deploy to Integration Environment') {
-        sh """
-            export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
-            export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
-            echo "\$IMAGE"
-            oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
-            oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
-            oc apply -f openshift-deployment.yml --config ./config
-            oc process deployment-app --config ./config -p=PORT=0 -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
-            """
-        environment_port = sh (
-            script: 'oc get service/svc-bat-desk  --config ./config --output=\'jsonpath={.spec.ports[0].nodePort}\'',
-            returnStdout: true
-        ).trim()
-
-        pod = sh (
-          script: " ./wait-to-pod.sh ",
-          returnStdout: true
-          ).trim()
-
-        urlService = "http://localhost:${environment_port}"
-        echo "URL Servicio    : ${urlService}"
+          sh "sudo docker login -u admin -p admin localhost:5000"
+          sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${commitId} ."
+          sh "sudo docker tag atsistemas/bat-desk/${featureName}:${commitId} localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+          sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+          sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
+          sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${commitId}"
       }
 
-    stage('Run e2e Tests') {
+  }
 
-        withMaven() {
-        //we need to modify this to point to openshift deployed url and port
-        //server.port
-        //application.endpoint.url
-            sh """
-                nohup oc port-forward ${pod} ${environment_port}:8080 --config ./config >/dev/null 2>&1  &
-                echo \$! > port-forward.pid
-                mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}
-               """
-        }
-    }
+  stage('Deploy to Integration Environment') {
+    sh """
+        export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
+        export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
+        echo "\$IMAGE"
+        oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
+        oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
+        oc apply -f openshift-deployment.yml --config ./config
+        oc process deployment-app --config ./config -p=PORT=0 -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
+        """
+    environment_port = sh (
+        script: 'oc get service/svc-bat-desk  --config ./config --output=\'jsonpath={.spec.ports[0].nodePort}\'',
+        returnStdout: true
+    ).trim()
 
-    stage('Remove Integration Environment') {
-        sh """
-            export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
-            oc delete project \$PROJECT --config ./config
-            kill -9 \$(cat port-forward.pid)
-           """
-    }
+    urlService = "http://openshift:${environment_port}"
+    echo "URL Servicio    : ${urlService}"
+  }
 
-	if(isMergeRequest(branchName)) {
+  stage('Run e2e Tests') {
 
-            stage('Preparing Pom for Release') {
+      withMaven() {
+      //we need to modify this to point to openshift deployed url and port
+      //server.port
+      //application.endpoint.url
+          sh "mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}"
+      }
+  }
 
-                //read the version and sets to release
+  stage('Remove Integration Environment') {
+      sh """
+          export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
+          oc delete project \$PROJECT --config ./config
+          """
+  }
+
+	if(_cycle == 'EndFeature') {
+
+            stage("Merge, set version and push to: $to") {
+
                 withMaven() {
                     def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
-
-                    def finalVersion = getFinalVersion(output)
-
-                    sh "mvn versions:set -DnewVersion=$finalVersion"
+                    finalVersion = getFinalVersion(output)
                 }
 
-                //commit and push.
                 withCredentials([usernamePassword(credentialsId: 'gitlab', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                     sh 'git config --global user.email "atSistemas@atsistemas.com"'
                     sh 'git config --global user.name "atSistemas"'
-                    sh 'git commit -am "Set final version"'
-                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
+                    sh "git fetch http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git"
+                    sh "git checkout ${branch_Name}"
+                    sh "git checkout ${to}"
+                    sh "git merge --no-ff --strategy-option theirs ${branch_Name}"
+                    sh "mvn versions:set -DnewVersion=${finalVersion} && mvn versions:commit"
+                    sh 'git add -A && git commit -m "Set final version ${finalVersion}" '
+                    sh "git tag bat-desk-${finalVersion}"
+                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git ${to}"
+                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git --tags ${to}"
+                    //housekeeping
+                    sh "git branch -d ${branch_Name}"
+                    //sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git origin --delete ${branch_Name}"
+
                 }
             }
-            stage('Merge') {
-                acceptmergerequest('webinar-bat-desk',getMergeRequestId(branchName))
-            }
 
-            if(isMaster(branchName)) {
+    }
 
     stage('Deploy to Nexus') {
             withMaven() {
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
             }
-
-    } else {
-        stage('Deploy Snapshot to Nexus') {
-        		withMaven() {
-        			sh 'mvn clean deploy -Dmaven.test.skip=true'
-        		}
-        	}
     }
 
 
-	if(isMaster(branchName)) {
-		stage('Deploy Application to Production') {
-      sh """
-        export PROJECT=workshopjbcn2017-production
-        export PORT=30000
-        export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
-        oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
-        oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
-        oc apply -f openshift-deployment.yml --config ./config
-        oc process deployment-app --config ./config -p=PORT=\$PORT -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
-			  """
-		}
-	}
+
+if(isMaster(branch_Name)) {
+    stage('Deploy Application to Production') {
+  sh """
+    export PROJECT=workshopjbcn2017-production
+    export PORT=30000
+    export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
+    oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
+    oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
+    oc apply -f openshift-deployment.yml --config ./config
+    oc process deployment-app --config ./config -p=PORT=\$PORT -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
+          """
+    }
+}
+
+
 }
 
 @NonCPS
@@ -182,13 +182,6 @@ boolean isMaster(String branch) {
     return 'master'.equals(branch)
 }
 
-boolean isMergeRequest(String branch) {
-    return (branch != null && branch.startsWith('merge-requests/'))
-}
-
-int getMergeRequestId(String branch) {
-    return branch.substring(branch.lastIndexOf("/") + 1)
-}
 String getFeatureName(String branch) {
 
     return branch.toLowerCase().substring(branch.lastIndexOf("/") + 1)
