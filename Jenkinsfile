@@ -8,7 +8,7 @@ node {
 	if(isMergeRequest(branchName)) {
 		def state = getmergerequeststate('webinar-bat-desk', getMergeRequestId(branchName))
 
-		if(!state.equals('opened')) {
+		if(state == null || !state.equals('opened')) {
 			echo "The merge request[$branchName] must be opened to build."
 
 			return
@@ -125,7 +125,7 @@ node {
                     sh 'git config --global user.email "atSistemas@atsistemas.com"'
                     sh 'git config --global user.name "atSistemas"'
                     sh 'git commit -am "Set final version"'
-                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName"
+                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git $branchName 'refs/merge-requests/*/head:refs/remotes/origin/merge-requests/*'"
                 }
             }
             stage('Merge') {
