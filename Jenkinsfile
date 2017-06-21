@@ -55,22 +55,6 @@ node {
       }
   }
 
-  stage('Create Docker Image and Push to Registry') {
-
-      withMaven() {
-
-          featureName = getFeatureName(branch_Name)
-          commitId = readCommitId()
-
-          sh "sudo docker login -u admin -p admin localhost:5000"
-          sh "sudo docker build -t atsistemas/bat-desk/${featureName}:${commitId} ."
-          sh "sudo docker tag atsistemas/bat-desk/${featureName}:${commitId} localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
-          sh "sudo docker push localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
-          sh "sudo docker rmi localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}"
-          sh "sudo docker rmi atsistemas/bat-desk/${featureName}:${commitId}"
-      }
-
-  }
 
 	if(_cycle == 'EndFeature') {
 
