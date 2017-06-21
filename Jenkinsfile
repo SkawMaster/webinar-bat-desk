@@ -48,13 +48,6 @@ node {
       }
   }
 
-	stage('Run Integration Tests') {
-
-      withMaven() {
-          sh 'mvn clean verify -Pintegration-tests'
-      }
-  }
-
 }
 
 @NonCPS
