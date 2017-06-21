@@ -41,13 +41,6 @@ node {
 		}
 	}
 
-	stage('Run Sonar reports') {
-
-      withMaven() {
-          sh 'mvn clean verify -Psonar-coverage sonar:sonar'
-      }
-  }
-
 }
 
 @NonCPS
