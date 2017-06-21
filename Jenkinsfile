@@ -72,42 +72,6 @@ node {
 
   }
 
-  stage('Deploy to Integration Environment') {
-    sh """
-        export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
-        export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
-        echo "\$IMAGE"
-        oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
-        oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
-        oc apply -f openshift-deployment.yml --config ./config
-        oc process deployment-app --config ./config -p=PORT=0 -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
-        """
-    environment_port = sh (
-        script: 'oc get service/svc-bat-desk  --config ./config --output=\'jsonpath={.spec.ports[0].nodePort}\'',
-        returnStdout: true
-    ).trim()
-
-    urlService = "http://openshift:${environment_port}"
-    echo "URL Servicio    : ${urlService}"
-  }
-
-  stage('Run e2e Tests') {
-
-      withMaven() {
-      //we need to modify this to point to openshift deployed url and port
-      //server.port
-      //application.endpoint.url
-          sh "mvn clean verify -Pe2e-tests -Dapplication.endpoint.url=http://localhost -Dserver.port=${environment_port}"
-      }
-  }
-
-  stage('Remove Integration Environment') {
-      sh """
-          export PROJECT=workshopjbcn2017-${featureName}-buildid-${BUILD_ID}
-          oc delete project \$PROJECT --config ./config
-          """
-  }
-
 	if(_cycle == 'EndFeature') {
 
             stage("Merge, set version and push to: $to") {
@@ -143,22 +107,6 @@ node {
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
             }
     }
-
-
-
-if(isMaster(branch_Name)) {
-    stage('Deploy Application to Production') {
-  sh """
-    export PROJECT=workshopjbcn2017-production
-    export PORT=30000
-    export IMAGE=localhost:5000/atsistemas/bat-desk/${featureName}:${commitId}
-    oc login https://openshift:8443 --insecure-skip-tls-verify=true --username=admin --password=system --config ./config
-    oc project \$PROJECT --config ./config || oc new-project \$PROJECT --config ./config
-    oc apply -f openshift-deployment.yml --config ./config
-    oc process deployment-app --config ./config -p=PORT=\$PORT -p=IMAGE=\$IMAGE | oc apply --config ./config -f -
-          """
-    }
-}
 
 
 }
