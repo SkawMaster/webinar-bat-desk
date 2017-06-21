@@ -21,8 +21,6 @@
 		<phantomjs.path>/opt/phantomjs-2.1.1-linux-x86_64/bin/phantomjs</phantomjs.path>
 		<skip.integration.tests>true</skip.integration.tests>
 		<skip.unit.tests>false</skip.unit.tests>
-		<nexus.releases.url>http://nexus:8081/repository/maven-releases/</nexus.releases.url>
-		<nexus.snapshots.url>http://nexus:8081/repository/maven-snapshots/</nexus.snapshots.url>
 		<sonar.host.url>http://sonarqube:9000</sonar.host.url>
 	</properties>
 
@@ -31,19 +29,6 @@
         <connection>scm:git:git://github.com/atSistemas/webinar-bat-desk.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/atSistemas/webinar-bat-desk.git</developerConnection>
     </scm>
-
-    <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Internal Releases</name>
-            <url>${nexus.releases.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <name>Internal Snapshot Releases</name>
-            <url>${nexus.snapshots.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <profiles>
         <profile>

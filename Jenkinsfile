@@ -55,44 +55,6 @@ node {
       }
   }
 
-
-	if(_cycle == 'EndFeature') {
-
-            stage("Merge, set version and push to: $to") {
-
-                withMaven() {
-                    def output = sh(returnStdout: true, script: 'mvn org.apache.maven.plugins:maven-help-plugin:2.1.1:evaluate -Dexpression=project.version')
-                    finalVersion = getFinalVersion(output)
-                }
-
-                withCredentials([usernamePassword(credentialsId: 'gitlab', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                    sh 'git config --global user.email "atSistemas@atsistemas.com"'
-                    sh 'git config --global user.name "atSistemas"'
-                    sh "git fetch http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git"
-                    sh "git checkout ${branch_Name}"
-                    sh "git checkout ${to}"
-                    sh "git merge --no-ff --strategy-option theirs ${branch_Name}"
-                    sh "mvn versions:set -DnewVersion=${finalVersion} && mvn versions:commit"
-                    sh 'git add -A && git commit -m "Set final version ${finalVersion}" '
-                    sh "git tag bat-desk-${finalVersion}"
-                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git ${to}"
-                    sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git --tags ${to}"
-                    //housekeeping
-                    sh "git branch -d ${branch_Name}"
-                    //sh "git push http://${GIT_USERNAME}:${GIT_PASSWORD}@gitlab/root/webinar-bat-desk.git origin --delete ${branch_Name}"
-
-                }
-            }
-
-    }
-
-    stage('Deploy to Nexus') {
-            withMaven() {
-                sh 'mvn clean deploy -Dmaven.test.skip=true'
-            }
-    }
-
-
 }
 
 @NonCPS

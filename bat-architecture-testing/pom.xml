@@ -12,22 +12,7 @@
         <java.version>1.8</java.version>
         <build.encoding>UTF-8</build.encoding>
         <hamcrest.version>1.3</hamcrest.version>
-        <nexus.releases.url>http://nexus:8081/repository/maven-releases/</nexus.releases.url>
-        <nexus.snapshots.url>http://nexus:8081/repository/maven-snapshots/</nexus.snapshots.url>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Internal Releases</name>
-            <url>${nexus.releases.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <name>Internal Snapshot Releases</name>
-            <url>${nexus.snapshots.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <dependencies>
 
